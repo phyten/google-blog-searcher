@@ -7,6 +7,7 @@ require 'open-uri'
 require "kconv"
 require 'rss'
 require 'mechanize'
+require 'scraper'
 
 
 module Google
