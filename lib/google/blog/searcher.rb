@@ -16,3 +16,9 @@ module Google
     end
   end
 end
+
+class String
+  def exclude_tag
+    self.gsub(/<[^<>]*>/,"")
+  end
+end
