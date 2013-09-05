@@ -41,7 +41,14 @@ module Google
             rss = RSS::Parser.parse(content, false)
           end
           rss.items.map do |item|
-            item.title.exclude_tag
+            {
+              title: item.title.exclude_tag,
+              description: item.description.exclude_tag,
+              link: item.link,
+              publisher: item.dc_publisher,
+              creator: item.dc_creator,
+              date: item.dc_date,
+            }
           end
         end
       end
