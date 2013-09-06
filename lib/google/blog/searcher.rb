@@ -17,11 +17,11 @@ module Google
         
       end
       class Parser
-        def self.parse(words=[])
+        def self.parse(words=[], sleep_time = 60)
           result = []
           [1, 11, 21, 31, 41, 51, 61, 71].each do |start|
             result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1"))
-            sleep(60)
+            sleep(sleep_time)
           end
           result.each do |item|
             item[:xvideos_links] = _xvideos(item[:link])
