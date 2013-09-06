@@ -27,7 +27,7 @@ module Google
             useragent = 'Mac Safari'
             mechanize = Mechanize.new
             mechanize.read_timeout = 20
-            mechanize.max_history = 10
+            mechanize.max_history = 1
             mechanize.user_agent_alias = useragent
             page = mechanize.get(url)
             content = page.content.to_s.toutf8
