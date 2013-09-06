@@ -23,6 +23,7 @@ module Google
             result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1"))
             sleep(sleep_time)
           end
+          result.delete_if {|item| item[:title] !~ /#{words.first}/i}
           result.each do |item|
             item[:xvideos_links] = _xvideos(item[:link])
             item[:xvideos_links] = item[:xvideos_links].exclude_bad_links unless item[:xvideos_links].blank?
