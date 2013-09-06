@@ -40,7 +40,7 @@ module Google
             page = mechanize.get(url)
             content = page.content.to_s.toutf8
           rescue Exception
-            return nil
+            return Array.new
           end
           # XMLをパース
           rss = nil
