@@ -52,6 +52,17 @@ module Google
             }
           end
         end
+        private
+        def self._xvideos(link)
+          scraper = Scraper::Core.new
+          scraper.url = link.to_s.toutf8
+          begin
+            scraper.reload            
+            return scraper.content.xvideos
+          rescue Exception
+            return nil
+          end          
+        end
       end
     end
   end
