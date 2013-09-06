@@ -74,6 +74,30 @@ class String
   end
 end
 
+class Array
+  def exclude_bad_links
+    useragent = "Mac Safari"
+    mechanize = Mechanize.new
+    mechanize.read_timeout = 20
+    mechanize.max_history = 10
+    mechanize.user_agent_alias = useragent
+    self.inject(Array.new) do |result, link|
+      result ||= []
+      xvideos_number = link.scan(/[0-9].+?$/).first.to_i
+      url = "http://jp.xvideos.com/video#{xvideos_number}/"
+      page = mechanize.get(url)
+      content = page.content.to_s.toutf8
+      if content =~ /Sorry, this video is not available/
+        STDERR.puts "#{link} is not found."
+        next
+      else
+        STDERR.puts "#{link} is found."
+        result.push(link)
+      end
+    end
+  end
+end
+
 module Hpricot
   class Doc
     def xvideos
