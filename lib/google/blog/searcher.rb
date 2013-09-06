@@ -17,8 +17,16 @@ module Google
         
       end
       class Parser
-        def self.parse(words=[], start=1)
-          _parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}")
+        def self.parse(words=[])
+          result = []
+          [1, 11, 21, 31, 41, 51, 61, 71].each do |start|
+            result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}"))
+          end
+          result.each do |item|
+            item[:xvideos_links] = _xvideos(item[:link])
+            item[:xvideos_links] = item[:xvideos_links].exclude_bad_links unless item[:xvideos_links].blank?
+          end
+          result.delete_if {|item| item[:xvideos_links].blank?}
         end
         private
         def self._parse(url)
