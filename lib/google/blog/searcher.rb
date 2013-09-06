@@ -30,7 +30,7 @@ module Google
             mechanize.max_history = 10
             mechanize.user_agent_alias = useragent
             page = mechanize.get(url)
-            content = page.content.to_s.toutf8            
+            content = page.content.to_s.toutf8
           rescue Exception
             return nil
           end
