@@ -62,3 +62,13 @@ class String
     self.gsub(/<[^<>]*>/,"")
   end
 end
+
+module Hpricot
+  class Doc
+    def xvideos
+      search('iframe[@src*="flashservice.xvideos.com"]').map do |iframe|
+        iframe[:src].to_s.toutf8
+      end
+    end
+  end
+end
