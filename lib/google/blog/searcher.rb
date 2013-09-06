@@ -94,7 +94,12 @@ class Array
       xvideos_number = link.scan(/[0-9].+?$/).first.to_i
       url = "http://jp.xvideos.com/video#{xvideos_number}/"
       page = mechanize.get(url)
-      content = page.content.to_s.toutf8
+      begin
+        content = page.content.to_s.toutf8
+      rescue Exception
+        STDERR.puts "#{link} is not found."
+        next
+      end
       if content =~ /Sorry, this video is not available/
         STDERR.puts "#{link} is not found."
         next
