@@ -19,8 +19,9 @@ module Google
       class Parser
         def self.parse(words=[])
           result = []
-          [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101].each do |start|
-            result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}"))
+          [1, 11, 21, 31, 41, 51, 61, 71].each do |start|
+            result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1"))
+            sleep(60)
           end
           result.each do |item|
             item[:xvideos_links] = _xvideos(item[:link])
@@ -32,14 +33,15 @@ module Google
         def self._parse(url)
           # URLへアクセスしページを取得
           begin
-            useragent = 'Mac Safari'
+            useragent = "Mac Safari"
             mechanize = Mechanize.new
             mechanize.read_timeout = 20
             mechanize.max_history = 1
-            mechanize.user_agent_alias = useragent
+            mechanize.user_agent = useragent
             page = mechanize.get(url)
             content = page.content.to_s.toutf8
-          rescue Exception
+          rescue Exception => e
+            puts e
             return Array.new
           end
           # XMLをパース
