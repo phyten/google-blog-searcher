@@ -19,7 +19,7 @@ module Google
       class Parser
         def self.parse(words=[])
           result = []
-          [1, 11, 21, 31, 41, 51, 61, 71].each do |start|
+          [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101].each do |start|
             result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}"))
           end
           result.each do |item|
