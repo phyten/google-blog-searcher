@@ -17,9 +17,9 @@ module Google
         
       end
       class Parser
-        def self.parse(words=[], sleep_time = 60)
+        def self.parse(words=[], sleep_time=60, step=71)
           result = []
-          [1, 11, 21, 31, 41, 51, 61, 71].each do |start|
+          1.step(step, 10).each do |start|
             result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1"))
             sleep(sleep_time)
           end
@@ -87,18 +87,13 @@ end
 
 class Array
   def exclude_bad_links
-    useragent = "Mac Safari"
-    mechanize = Mechanize.new
-    mechanize.read_timeout = 20
-    mechanize.max_history = 10
-    mechanize.user_agent_alias = useragent
-    self.inject(Array.new) do |result, link|
+    links = self.inject(Array.new) do |result, link|
       result ||= []
       xvideos_number = link.scan(/[0-9].+?$/).first.to_i
       url = "http://jp.xvideos.com/video#{xvideos_number}/"
       begin
-        page = mechanize.get(url)
-        content = page.content.to_s.toutf8
+        page = OpenURI.open_uri(url)
+        content = page.read
       rescue Exception
         STDERR.puts "#{link} is not found."
         next
@@ -111,6 +106,9 @@ class Array
         result.push(link)
       end
     end
+    page = nil
+    content = nil
+    links
   end
 end
 
