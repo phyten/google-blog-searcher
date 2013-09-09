@@ -69,10 +69,13 @@ module Google
           scraper.url = link.to_s.toutf8
           begin
             scraper.reload            
-            return scraper.content.xvideos
+            xvideos = scraper.content.xvideos.dup
+            scraper = nil
+            return xvideos
           rescue Exception
+            scraper = nil
             return nil
-          end          
+          end
         end
       end
     end
