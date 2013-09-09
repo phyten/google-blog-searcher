@@ -25,10 +25,10 @@ module Google
           end
           result.delete_if {|item| item[:title] !~ /#{words.first}/i}
           result.each do |item|
-            item[:xvideos_links] = _xvideos(item[:link])
-            item[:xvideos_links] = item[:xvideos_links].exclude_bad_links unless item[:xvideos_links].blank?
+            xvideos_links = _xvideos(item[:link])
+            item[:xvideos_links_and_thumbnail] = xvideos_links.exclude_bad_links_and_add_thumbnail unless xvideos_links.blank?
           end
-          result.delete_if {|item| item[:xvideos_links].blank?}
+          result.delete_if {|item| item[:xvideos_links_and_thumbnail].blank?}
         end
         private
         def self._parse(url)
@@ -89,7 +89,7 @@ class String
 end
 
 class Array
-  def exclude_bad_links
+  def exclude_bad_links_and_add_thumbnail
     links = self.inject(Array.new) do |result, link|
       result ||= []
       xvideos_number = link.scan(/[0-9].+?$/).first.to_i
@@ -106,11 +106,14 @@ class Array
         next
       else
         STDERR.puts "#{link} is found."
-        result.push(link)
+        scraper = Hpricot content
+        thumbnail = scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
+        result.push({link: link, thumbnail: thumbnail})
       end
     end
     page = nil
     content = nil
+    scraper = nil
     links
   end
 end
