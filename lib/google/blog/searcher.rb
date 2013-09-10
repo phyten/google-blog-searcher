@@ -34,14 +34,8 @@ module Google
         def self._parse(url)
           # URLへアクセスしページを取得
           begin
-            useragent = "Mac Safari"
-            mechanize = Mechanize.new
-            mechanize.read_timeout = 20
-            mechanize.max_history = 1
-            mechanize.user_agent = useragent
-            page = mechanize.get(url)
-            content = page.content.to_s.toutf8
-            mechanize = nil
+            page = OpenURI.open_uri(URI.encode(url))
+            content = page.read.to_s.toutf8
             page = nil
           rescue Exception => e
             puts e
