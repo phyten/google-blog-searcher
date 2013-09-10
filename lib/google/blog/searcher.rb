@@ -41,6 +41,8 @@ module Google
             mechanize.user_agent = useragent
             page = mechanize.get(url)
             content = page.content.to_s.toutf8
+            mechanize = nil
+            page = nil
           rescue Exception => e
             puts e
             return Array.new
