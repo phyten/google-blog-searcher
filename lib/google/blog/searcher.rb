@@ -13,25 +13,37 @@ require 'scraper'
 module Google
   module Blog
     module Searcher
-      class Core
-        
-      end
       class Parser
-        def self.parse(words=[], sleep_time=60, step=71)
-          result = []
+        attr_accessor :result, :scraper
+        def initialize
+        end
+        def search(words=[], sleep_time=60, step=71)
+          # googleから検索したいブログを割り出す
+          @results = []
           1.step(step, 10).each do |start|
-            result.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1"))
+            @results.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1"))
             sleep(sleep_time)
           end
-          result.delete_if {|item| item[:title] !~ /#{words.first}/i}
-          result.each do |item|
-            xvideos_links = _xvideos(item[:link])
-            item[:xvideos_links_and_thumbnail] = xvideos_links.exclude_bad_links_and_add_thumbnail unless xvideos_links.blank?
+          @results.delete_if {|item| item[:title] !~ /#{words.first}/i}
+          @results
+        end
+        def xvideos_with_title(link)
+          @scraper = Scraper::Core.new
+          @scraper.url = link.to_s.toutf8
+          begin
+            @scraper.reload
+            res = @scraper.content.xvideos.exclude_bad_links_and_add_thumbnail
+            if res.present?
+              return { links: res, title: @scraper.title }
+            else
+              return nil
+            end
+          rescue Exception
+            return nil
           end
-          result.delete_if {|item| item[:xvideos_links_and_thumbnail].blank?}
         end
         private
-        def self._parse(url)
+        def _parse(url)
           # URLへアクセスしページを取得
           begin
             page = OpenURI.open_uri(URI.encode(url))
@@ -57,20 +69,6 @@ module Google
               creator: item.dc_creator,
               date: item.dc_date,
             }
-          end
-        end
-        private
-        def self._xvideos(link)
-          scraper = Scraper::Core.new
-          scraper.url = link.to_s.toutf8
-          begin
-            scraper.reload            
-            xvideos = scraper.content.xvideos.dup
-            scraper = nil
-            return xvideos
-          rescue Exception
-            scraper = nil
-            return nil
           end
         end
       end
