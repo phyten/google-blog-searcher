@@ -16,6 +16,12 @@ module Google
       class Parser
         attr_accessor :result, :scraper
         def initialize
+          useragent = 'Mac Safari'
+          @mechanize = Mechanize.new
+          @mechanize.read_timeout = 20
+          @mechanize.max_history = 1
+          @mechanize.user_agent_alias = useragent
+          @scraper = Scraper::Core.new
         end
         def search(words=[], sleep_time=60, step=71)
           # googleから検索したいブログを割り出す
@@ -28,11 +34,10 @@ module Google
           @results
         end
         def xvideos_with_title(link)
-          @scraper = Scraper::Core.new
           @scraper.url = link.to_s.toutf8
           begin
             @scraper.reload
-            res = @scraper.content.xvideos.exclude_bad_links_and_add_thumbnail
+            res = exclude_bad_links_and_add_thumbnail(@scraper.content.xvideos)
             if res.present?
               return { links: res, title: @scraper.title }
             else
@@ -42,13 +47,37 @@ module Google
             return nil
           end
         end
+        def exclude_bad_links_and_add_thumbnail(before_links)
+          links = before_links.inject(Array.new) do |result, link|
+            result ||= []
+            xvideos_number = link.scan(/[0-9].+?$/).first.to_i
+            url = "http://jp.xvideos.com/video#{xvideos_number}/"
+            begin
+              page = @mechanize.get(url)
+              content = page.content.to_s.toutf8
+            rescue Exception
+              STDERR.puts "#{link} is not found."
+              next
+            end
+            if content =~ /Sorry, this video is not available/
+              STDERR.puts "#{link} is not found."
+              next
+            else
+              STDERR.puts "#{link} is found."
+              scraper = Hpricot content
+              thumbnail = scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
+              result.push({link: link, thumbnail: thumbnail})
+            end
+          end
+          scraper = nil
+          links
+        end
         private
         def _parse(url)
           # URLへアクセスしページを取得
           begin
-            page = OpenURI.open_uri(URI.encode(url))
-            content = page.read.to_s.toutf8
-            page = nil
+            page = @mechanize.get(url)
+            content = page.content.to_s.toutf8
           rescue Exception => e
             puts e
             return Array.new
@@ -79,36 +108,6 @@ end
 class String
   def exclude_tag
     self.gsub(/<[^<>]*>/,"")
-  end
-end
-
-class Array
-  def exclude_bad_links_and_add_thumbnail
-    links = self.inject(Array.new) do |result, link|
-      result ||= []
-      xvideos_number = link.scan(/[0-9].+?$/).first.to_i
-      url = "http://jp.xvideos.com/video#{xvideos_number}/"
-      begin
-        page = OpenURI.open_uri(url)
-        content = page.read
-      rescue Exception
-        STDERR.puts "#{link} is not found."
-        next
-      end
-      if content =~ /Sorry, this video is not available/
-        STDERR.puts "#{link} is not found."
-        next
-      else
-        STDERR.puts "#{link} is found."
-        scraper = Hpricot content
-        thumbnail = scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
-        result.push({link: link, thumbnail: thumbnail})
-      end
-    end
-    page = nil
-    content = nil
-    scraper = nil
-    links
   end
 end
 
