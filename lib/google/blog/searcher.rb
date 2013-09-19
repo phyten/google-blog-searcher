@@ -47,6 +47,20 @@ module Google
             return nil
           end
         end
+        def fc2_with_title(link)
+          @scraper.url = link.to_s.toutf8
+          begin
+            @scraper.reload
+            res = exclude_bad_links_and_add_thumbnail_for_fc2(@scraper.content.fc2)
+            if res.present?
+              return { links: res, title: @scraper.title }
+            else
+              return nil
+            end
+          rescue Exception
+            return nil
+          end
+        end
         def exclude_bad_links_and_add_thumbnail(before_links)
           links = before_links.inject(Array.new) do |result, link|
             result ||= []
@@ -66,6 +80,30 @@ module Google
               STDERR.puts "#{link} is found."
               scraper = Hpricot content
               thumbnail = scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
+              result.push({link: link, thumbnail: thumbnail})
+            end
+          end
+          scraper = nil
+          links
+        end
+        def exclude_bad_links_and_add_thumbnail_for_fc2(before_links)
+          links = before_links.inject(Array.new) do |result, link|
+            result ||= []
+            url = link
+            begin
+              page = @mechanize.get(url)
+              content = page.content.to_s.toutf8
+            rescue Exception
+              STDERR.puts "#{link} is not found."
+              next
+            end
+            if content =~ /このコンテンツは既に削除されているか、あるいは作成者によって公開禁止に設定されています。/
+              STDERR.puts "#{link} is not found."
+              next
+            else
+              STDERR.puts "#{link} is found."
+              scraper = Hpricot content
+              thumbnail = scraper.search('meta[@content*="thumb"]').first[:content].to_s.toutf8
               result.push({link: link, thumbnail: thumbnail})
             end
           end
@@ -116,6 +154,19 @@ module Hpricot
     def xvideos
       search('iframe[@src*="flashservice.xvideos.com"]').map do |iframe|
         iframe[:src].to_s.toutf8
+      end
+    end
+    def fc2
+      # res = search('object embed[@src*="video.fc2.com"]').map do |embed|
+      #   embed[:src].to_s.scan(/flv2\.swf\?i=([a-zA-Z0-9].+?)/).first.toutf8
+      # end
+      # res.concat(
+      #            search('script[@url*="video.fc2.com"]').map do |script|
+      #              script[:url].to_s.scan(/ja\/a\/content\/([a-zA-Z0-9].+?)/).first.toutf8
+      #            end
+      #            )
+      search('script[@url*="video.fc2.com"]').map do |script|
+        "http://video.fc2.com/ja/a/content/" + script[:url].to_s.scan(/content\/([a-zA-Z0-9].+?)\//).first.first.toutf8
       end
     end
   end
