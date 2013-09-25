@@ -18,7 +18,7 @@ module Google
         def initialize
           useragent = 'Mac Safari'
           @mechanize = Mechanize.new
-          @mechanize.read_timeout = 20
+          @mechanize.read_timeout = 60
           @mechanize.max_history = 1
           @mechanize.user_agent_alias = useragent
           @scraper = Scraper::Core.new
@@ -70,7 +70,7 @@ module Google
               page = @mechanize.get(url)
               content = page.content.to_s.toutf8
             rescue Exception
-              STDERR.puts "#{link} is not found."
+              STDERR.puts "#{link} is fucked."
               next
             end
             if content =~ /Sorry, this video is not available/
