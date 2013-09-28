@@ -43,7 +43,8 @@ module Google
             else
               return nil
             end
-          rescue Exception
+          rescue Exception => e
+            puts e
             return nil
           end
         end
@@ -57,13 +58,14 @@ module Google
             else
               return nil
             end
-          rescue Exception
+          rescue Exception => e
+            puts e
             return nil
           end
         end
         def exclude_bad_links_and_add_thumbnail(before_links)
-          links = before_links.inject(Array.new) do |result, link|
-            result ||= []
+          links = Array.new
+          before_links.each do |link|
             xvideos_number = link.scan(/[0-9].+?$/).first.to_i
             url = "http://jp.xvideos.com/video#{xvideos_number}/"
             begin
@@ -80,15 +82,15 @@ module Google
               STDERR.puts "#{link} is found."
               scraper = Hpricot content
               thumbnail = scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
-              result.push({link: link, thumbnail: thumbnail})
+              links.push({link: link, thumbnail: thumbnail})
             end
           end
           scraper = nil
           links
         end
         def exclude_bad_links_and_add_thumbnail_for_fc2(before_links)
-          links = before_links.inject(Array.new) do |result, link|
-            result ||= []
+          links = Array.new
+          before_links.each do |link|
             url = link
             begin
               page = @mechanize.get(url)
@@ -104,7 +106,7 @@ module Google
               STDERR.puts "#{link} is found."
               scraper = Hpricot content
               thumbnail = scraper.search('meta[@content*="thumb"]').first[:content].to_s.toutf8
-              result.push({link: link, thumbnail: thumbnail})
+              links.push({link: link, thumbnail: thumbnail})
             end
           end
           scraper = nil
