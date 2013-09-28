@@ -69,8 +69,8 @@ module Google
             begin
               page = @mechanize.get(url)
               content = page.content.to_s.toutf8
-            rescue Exception
-              STDERR.puts "#{link} is fucked."
+            rescue Exception => e
+              STDERR.puts "#{link} is fucked.#{e}"
               next
             end
             if content =~ /Sorry, this video is not available/
