@@ -14,7 +14,7 @@ module Google
   module Blog
     module Searcher
       class Parser
-        attr_accessor :result, :scraper
+        attr_accessor :result, :scraper, :hpricot_scraper
         def initialize
           useragent = 'Mac Safari'
           @mechanize = Mechanize.new
@@ -80,12 +80,11 @@ module Google
               next
             else
               STDERR.puts "#{link} is found."
-              scraper = Hpricot content
+              @hpricot_scraper = Hpricot content
               thumbnail = scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
               links.push({link: link, thumbnail: thumbnail})
             end
           end
-          scraper = nil
           links
         end
         def exclude_bad_links_and_add_thumbnail_for_fc2(before_links)
