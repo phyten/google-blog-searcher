@@ -81,7 +81,7 @@ module Google
             else
               STDERR.puts "#{link} is found."
               @hpricot_scraper = Hpricot content
-              thumbnail = scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
+              thumbnail = @hpricot_scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
               links.push({link: link, thumbnail: thumbnail})
             end
           end
