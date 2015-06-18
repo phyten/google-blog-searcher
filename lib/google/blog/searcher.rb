@@ -23,11 +23,19 @@ module Google
           @mechanize.user_agent_alias = useragent
           @scraper = Scraper::Core.new
         end
-        def search(words=[], sleep_time=60, step=71)
+        def search(words=[], sleep_time=60, step=71, span=0)
           # googleから検索したいブログを割り出す
           @results = []
-          1.step(step, 10).each do |start|
-            @results.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1"))
+          span_param = String.new
+          if span == 1
+            span_param = "&tbs=qdr:d"
+          elsif span == 2
+            span_param = "&tbs=qdr:w"
+          elsif span == 3
+            span_param = "&tbs=qdr:m"
+          end
+          0.step(step, 10).each do |start|
+            @results.concat(_parse("https://www.google.co.jp/search?tbm=blg&hl=ja&q=#{words.join(' ')}&output=rss&start=#{start}&qscrl=1#{span_param}"))
             sleep(sleep_time)
           end
           @results.delete_if {|item| item[:title] !~ /#{words.first}/i}
