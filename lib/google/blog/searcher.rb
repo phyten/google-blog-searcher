@@ -25,7 +25,7 @@ module Google
         end
         def search(words=[], sleep_time=6, step=71, span=0)
           # googleから検索したいブログを割り出す
-          step = 2
+          step = 10
           @results = []
           span_param = String.new
           if span == 1
