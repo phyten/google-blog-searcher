@@ -35,11 +35,12 @@ module Google
           elsif span == 3
             span_param = "&tbs=qdr:m"
           end
+          words = words.map { |e| URI.encode(e.encode("Shift_Jis"))}
           0.step(step, 1).each do |start|
-            @results.concat(_parse("http://trendword.blogpeople.net/rss/?e=0&keyword=#{words.join(' ')}&p=#{start}"))
+            @results.concat(_parse("http://trendword.blogpeople.net/rss/?e=0&keyword=#{words.join(" ")}&p=#{start}"))
             sleep(sleep_time)
           end
-          @results.delete_if {|item| item[:title] !~ /#{words.first}/i}
+          # @results.delete_if {|item| item[:title] !~ /#{words.first}/i}
           @results
         end
         def xvideos_with_title(link)
