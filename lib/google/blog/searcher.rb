@@ -37,7 +37,7 @@ module Google
           end
           words = words.map { |e| URI.encode(e.encode("Shift_Jis"))}
           0.step(step, 1).each do |start|
-            @results.concat(_parse("http://trendword.blogpeople.net/rss/?e=0&keyword=#{words.join(" ")}&p=#{start}"))
+            @results.concat(_parse("http://104.237.136.165/?keyword=#{words.join(" ")}"))
             sleep(sleep_time)
           end
           @results.delete_if {|item| item[:title] !~ /#{words.first}/i}
