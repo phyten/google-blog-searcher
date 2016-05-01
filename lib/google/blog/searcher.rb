@@ -35,7 +35,7 @@ module Google
           elsif span == 3
             span_param = "&tbs=qdr:m"
           end
-          words = words.map { |e| URI.encode(e.encode("Shift_Jis"))}
+          # words = words.map { |e| URI.encode(e.encode("Shift_Jis"))}
           0.step(step, 1).each do |start|
             @results.concat(_parse("http://104.237.136.165/?keyword=#{words.join(" ")}"))
             sleep(sleep_time)
