@@ -77,7 +77,7 @@ module Google
           links = Array.new
           before_links.each do |link|
             xvideos_number = link.scan(/[0-9].+?$/).first.to_i
-            url = "http://jp.xvideos.com/video#{xvideos_number}/"
+            url = "http://www.xvideos.com/video#{xvideos_number}/"
             begin
               page = @mechanize.get(url)
               content = page.content.to_s.toutf8
@@ -91,7 +91,7 @@ module Google
             else
               STDERR.puts "#{link} is found."
               @hpricot_scraper = Hpricot content
-              thumbnail = @hpricot_scraper.search("div#videoTabs ul.tabButtons li#tabVote img").first[:src].to_s.toutf8
+              thumbnail = @hpricot_scraper.search("head meta[@property]").select{|i| i[:property] =~ /image/ }.first[:content].to_s.toutf8
               links.push({link: link, thumbnail: thumbnail})
             end
           end
