@@ -17,7 +17,10 @@ module Google
         attr_accessor :result, :scraper, :hpricot_scraper
         def initialize
           useragent = 'Mac Safari'
-          @mechanize = Mechanize.new
+          @mechanize = Mechanize.new do |a| 
+            a.follow_meta_refresh = true
+            a.keep_alive = false
+          end
           @mechanize.read_timeout = 60
           @mechanize.max_history = 1
           @mechanize.user_agent_alias = useragent
