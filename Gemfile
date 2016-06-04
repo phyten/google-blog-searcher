@@ -4,4 +4,4 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'activesupport', :require => 'active_support/all'
-gem 'scraper', :git => 'git://github.com/phyten/scraper.git'
+gem 'scraper', "0.0.6", :git => 'git://github.com/phyten/scraper.git'
